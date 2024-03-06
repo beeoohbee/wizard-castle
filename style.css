@@ -1,0 +1,19 @@
+.board {
+    padding: 20px 0;
+}
+#map td {
+    height: 50px;
+    width: 50px;
+    border: 1px solid black;
+    text-align: center;
+}
+
+#output {
+    min-height: 300px;
+    border: 1px solid black;
+}
+
+#input input {
+    width: 100%;
+    margin-top: 20px;
+}
