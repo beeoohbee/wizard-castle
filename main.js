@@ -2,32 +2,39 @@
 const map = new Array();
 
 var playerLocation = {
+    floor: 0,
     row: 0,
     col: 4
 }; // row, column
 
 function generateGame() {
 
-    //Setup Base Room
-    for (let row = 0; row < 10; row++ ) {
-        const rowArray = new Array();
-        map.push(rowArray);
-        for (let col = 0; col < 10; col++ ) {
-            const room = new Object();
-            room.explored = false; 
-            room.key = '.';
-            rowArray.push(room);
-           
-        }   
+    for( let floor = 0; floor < 10; floor++) {
+        const floorArray = new Array();
+        map.push(floorArray);
+        //Setup Base Room
+        for (let row = 0; row < 10; row++ ) {
+            const rowArray = new Array();
+            floorArray.push(rowArray);
+            for (let col = 0; col < 10; col++ ) {
+                const room = new Object();
+                room.explored = true; 
+                room.key = '.';
+                rowArray.push(room);
+            }   
+        }
     }
 
     //Add Monsters
     //TODO randomly place monsters in rooms
-    map[0][0].contents = 'Orc';
-    map[0][0].key = 'M';
+    map[0][0][0].contents = 'Orc';
+    map[0][0][0].key = 'M';
 
-
-    //Add Pools
+    for(let f=0; f<9; f++) {
+        let r=  getRandomInt(10);
+        let c=  getRandomInt(10);
+        map[f][r][c].key = 'SU'
+        map[f+1][r][c].key = 'SD'}
 
     drawMap();
     
@@ -35,6 +42,8 @@ function generateGame() {
 
 
 function drawMap() {
+    let floor = playerLocation.floor;
+
     let mapString = '<table>';
     for (let row = 0; row < 10; row++ ) {
         mapString += '<tr>'
@@ -43,11 +52,11 @@ function drawMap() {
             
             let player = '';
             if (playerLocation.row == row && playerLocation.col == col) {
-                map[row][col].explored = true;
+                map[floor][row][col].explored = true;
                 player = '<br>insert<br>icon';
             }
-            if (map.at(row).at(col).explored) {
-                contents = map.at(row).at(col).key;
+            if (map.at(floor).at(row).at(col).explored) {
+                contents = map.at(floor).at(row).at(col).key;
             } else {
                 contents = '?';
             }
@@ -66,13 +75,50 @@ function submitCommand() {
     console.log(cmd);
     input.focus();
 
-    if (cmd == 'S' || cmd == 's') { // || means or
-        //TODO move the player down one cell (if you get to row 10 (9) you hit a wall)
-        playerLocation.row = playerLocation.row + 1;
-
-
-    }
-    drawMap();
+    executeCommand(cmd);
 
 }
+
+function executeCommand(cmd) {
+    if ((cmd == 'S' || cmd == 's') && playerLocation.row < 9) { // || means or
+        //TODO move the player down one cell (if you get to row 10 (9) you hit a wall)
+        playerLocation.row = playerLocation.row + 1;
+    }
+    if ((cmd == 'N' || cmd == 'n' )&& playerLocation.row > 0) { 
+        playerLocation.row = playerLocation.row - 1;
+    }
+    if ((cmd == 'W' || cmd == 'w') && playerLocation.col > 0) { 
+        playerLocation.col = playerLocation.col - 1;
+    }
+    if ((cmd == 'E' || cmd == 'e') && playerLocation.col < 9) { 
+        playerLocation.col = playerLocation.col + 1;
+    }
+    if ((cmd == 'U' || cmd == 'u') && playerLocation.floor < 9) { 
+        playerLocation.floor = playerLocation.floor + 1;
+    }
+    if ((cmd == 'D' || cmd == 'd') && playerLocation.floor > 0) { 
+        playerLocation.floor = playerLocation.floor - 1;
+    }
+    drawMap();
+}
+
+function keyListener(event) {
+    console.log(event.keyCode);
+    if (event.keyCode == 40) {
+        executeCommand('s');
+    } else if (event.keyCode == 38) {
+        executeCommand('n');
+    } else if (event.keyCode == 39) {
+        executeCommand('e');
+    } else if (event.keyCode == 37) {
+        executeCommand('w');
+    }
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+
+
+document.onkeydown = keyListener;
 
