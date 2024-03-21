@@ -27,15 +27,27 @@ function generateGame() {
 
     //Add Monsters
     //TODO randomly place monsters in rooms
-    map[0][0][0].contents = 'Orc';
-    map[0][0][0].key = 'M';
-
+    // for (var i = 0; i < 10; i++) {
+    //     for (var j = 0; j < 9; j++) {
+    // map[0][i][j].contents = 'Orc';
+    // map[0][i][j].key = 'M';
+    //     }
+    // }
+    
     for(let f=0; f<9; f++) {
-        let r=  getRandomInt(10);
-        let c=  getRandomInt(10);
-        map[f][r][c].key = 'SU'
-        map[f+1][r][c].key = 'SD'}
-
+        var addedStairs = false;
+        while (!addedStairs) {
+            let r=  getRandomInt(10);
+            let c=  getRandomInt(10);
+            if (map[f][r][c].key === '.' &&
+                map[f+1][r][c].key === '.') {
+                map[f][r][c].key = 'SU';
+                map[f+1][r][c].key = 'SD';
+                addedStairs = true;
+                }
+        }
+    }
+    
     drawMap();
     
 }
@@ -92,9 +104,9 @@ function executeCommand(cmd) {
     }
     if ((cmd == 'E' || cmd == 'e') && playerLocation.col < 9) { 
         playerLocation.col = playerLocation.col + 1;
-    }
+    } 
     if ((cmd == 'U' || cmd == 'u') && playerLocation.floor < 9) { 
-        playerLocation.floor = playerLocation.floor + 1;
+        playerLocation.floor = playerLocation.floor + 1; 
     }
     if ((cmd == 'D' || cmd == 'd') && playerLocation.floor > 0) { 
         playerLocation.floor = playerLocation.floor - 1;
