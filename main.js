@@ -26,6 +26,7 @@ function generateGame() {
 
     //Add Monsters
     generateMonsters();
+    generatebob();
     //TODO randomly place monsters in rooms
 
 
@@ -43,21 +44,22 @@ function getRandomInt(max) {
 function generateMonsters(){
     for( let floor = 0; floor < 10; floor++){
         let monsterCount = 0;
-       while( monsterCount < 5  ){
-        let r = getRandomInt(10);
-        let c = getRandomInt(10);
-        let whatName = getRandomInt(10);
-        let name = 'old lady';
-        if(whatName > 5){
-            name = 'mosnter'
+       while( monsterCount < 5) {
+            let r = getRandomInt(10);
+            let c = getRandomInt(10);
+            let whatName = getRandomInt(10);
+            let name = 'old lady';
+            if(whatName > 5){
+                name = 'mosnter'
+            }
+            if (map[floor][r][c].key == '.') {
+                monsterCount++;
+                map[floor][r][c].key = name;
+            }
         }
-        if (map[floor][r][c].key == '.') {
-            monsterCount++;
-            map[floor][r][c].key = name;
-        }
+    }
 }
-    }
-    }
+
 function drawMap() {
 
     let floor = playerLocation.floor;
