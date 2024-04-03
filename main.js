@@ -5,10 +5,17 @@ const map = new Array();
 var playerLocation = {
     floor: 0,
     row: 0,
-    col: 4
-}; // row, colume
+    col: 4,
+    health: 100,
+    attack: getRandomInt(10) + 10,
+    defense:  getRandomInt(10) + 10,
+    agility:  getRandomInt(10) + 10,
+    xp: 0,
+    key: 'You'
+};
+
 function generateGame() {
-  
+
     for( let floor = 0; floor < 10; floor++) {
         const floorArray = new Array();
         map.push(floorArray);
@@ -24,7 +31,7 @@ function generateGame() {
             }   
         }
     }
-    
+
     for(let f=0; f<9; f++) {
         var addedStairs = false;
         while (!addedStairs) {
@@ -57,9 +64,10 @@ function generateMonsters(){
             let r = getRandomInt(10);
             let c = getRandomInt(10);
             var monsterStats = {
+                health: 10 + getRandomInt(50),
                 agility: 1 + floor + getRandomInt((1+floor) * 10),
                 attack: 1 + floor + getRandomInt((1+floor) * 10),
-                defence: 1 + floor + getRandomInt((1+floor) * 10)
+                defense: 1 + floor + getRandomInt((1+floor) * 10)
             };
         //name
             let whatName = getRandomInt(10);
@@ -126,7 +134,7 @@ function drawMap() {
 
                 if (map.at(floor).at(row).at(col).monsterStats){
                     ms = map.at(floor).at(row).at(col).monsterStats;
-                    contents += '<br>A: ' + ms.attack + ' D: '+ ms.defence + ' S: ' + ms.agility;
+                    contents += '<br>H: ' + ms.health + ' A: ' + ms.attack + ' D: '+ ms.defense + ' S: ' + ms.agility;
                 }
 
             } else {
@@ -138,6 +146,8 @@ function drawMap() {
     }
     mapString += '</table>';
     document.getElementById('map').innerHTML = mapString;
+    document.getElementById('player').innerHTML = 'H: ' + playerLocation.health + ' A: ' + playerLocation.attack
+        + ' D: '+ playerLocation.defense + ' S: ' + playerLocation.agility + ' XP: ' + playerLocation.xp;
 }
 
 function submitCommand() {
@@ -150,7 +160,7 @@ function submitCommand() {
     executeCommand(cmd);
 
 }
-    
+
 function executeCommand(cmd) {
     if ((cmd == 'S' || cmd == 's') && playerLocation.row < 9) { 
         playerLocation.row = playerLocation.row + 1;
@@ -163,14 +173,67 @@ function executeCommand(cmd) {
     }
     if ((cmd == 'E' || cmd == 'e') && playerLocation.col < 9) { 
         playerLocation.col = playerLocation.col + 1;
-    } 
+    }
     if ((cmd == 'U' || cmd == 'u') && playerLocation.floor < 9) { 
-        playerLocation.floor = playerLocation.floor + 1; 
+        playerLocation.floor = playerLocation.floor + 1;
     }
     if ((cmd == 'D' || cmd == 'd') && playerLocation.floor > 0) { 
         playerLocation.floor = playerLocation.floor - 1;
     }
+    if (cmd == 'A' || cmd == 'a') {
+        var room = map[playerLocation.floor][playerLocation.row][playerLocation.col];
+        if (room.monsterStats) {
+            if (playerLocation.agility > room.monsterStats.agility) {
+                fight(playerLocation, room.monsterStats);
+                fight(room.monsterStats, playerLocation);
+            } else {
+                fight(room.monsterStats, playerLocation);
+                fight(playerLocation, room.monsterStats);
+            }
+
+            if (room.monsterStats.health <= 0) {
+                display("You have vanquished the " + room.key);
+                awardXP();
+                delete room.monsterStats;
+            }
+            if (playerLocation.health <= 0) {
+                display('You are dead!');
+            }
+        } else {
+            display("What are you swinging at?")
+        }
+    }
     drawMap();
+}
+
+function fight(a, d) {
+    if (a.health <= 0) {
+        return;
+    }
+    display(a.key + ' attacks!')
+    var dodgeRate = Math.max((d.agility - a.agility) / (a.agility + d.agility), .1 );
+    var attack = Math.max(a.attack - d.defense, 1);
+    if (Math.random() < dodgeRate) {
+        display(d.key + ' dodged the attack');
+    } else {
+        d.health -= attack;
+    }
+}
+
+function awardXP() {
+    playerLocation.xp += 1;
+    if (playerLocation.xp % 5 == 0) {
+        playerLocation.health = 100;
+        playerLocation.attack += getRandomInt(20);
+        playerLocation.defense += getRandomInt(20);
+        playerLocation.agility += getRandomInt(20);
+    }
+}
+
+function display(message) {
+    var outputDiv = document.getElementById("output");
+    outputDiv.innerHTML = outputDiv.innerHTML + '<br>' + message;
+    outputDiv.scrollTop = outputDiv.scrollHeight;
 }
 
 function keyListener(event) {
@@ -190,6 +253,8 @@ function keyListener(event) {
         executeCommand('u');
     }else if ((event.keyCode == 40) && keyAtPlayerLocation(playerLocation, 'SD')) {
         executeCommand('d');
+    } else if (event.keyCode == 32) {
+        executeCommand('a');
     }
 }
 
