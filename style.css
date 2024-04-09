@@ -11,6 +11,8 @@
 #output {
     min-height: 300px;
     border: 1px solid black;
+    max-height: 300px;
+    overflow: auto;
 }
 
 #input input {
