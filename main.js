@@ -90,10 +90,9 @@ function submitCommand() {
     executeCommand(cmd);
 
 }
-
+    
 function executeCommand(cmd) {
-    if ((cmd == 'S' || cmd == 's') && playerLocation.row < 9) { // || means or
-        //TODO move the player down one cell (if you get to row 10 (9) you hit a wall)
+    if ((cmd == 'S' || cmd == 's') && playerLocation.row < 9) { 
         playerLocation.row = playerLocation.row + 1;
     }
     if ((cmd == 'N' || cmd == 'n' )&& playerLocation.row > 0) { 
@@ -116,15 +115,26 @@ function executeCommand(cmd) {
 
 function keyListener(event) {
     console.log(event.keyCode);
-    if (event.keyCode == 40) {
+    if (event.keyCode == 83) {
         executeCommand('s');
-    } else if (event.keyCode == 38) {
+    } else if (event.keyCode == 87) {
         executeCommand('n');
-    } else if (event.keyCode == 39) {
+    } else if (event.keyCode == 68) {
         executeCommand('e');
-    } else if (event.keyCode == 37) {
+    } else if (event.keyCode == 65) {
         executeCommand('w');
+    }else if ((event.keyCode == 38) && keyAtPlayerLocation(playerLocation, 'SU')) {
+        executeCommand('u');
+    }else if ((event.keyCode == 40) && keyAtPlayerLocation(playerLocation, 'SD')) {
+        executeCommand('d');
     }
+}
+
+function keyAtPlayerLocation(playerLocation, key) {
+  //return boolean if the player is at a location with the given key
+    var currentRoom = map[playerLocation.floor][playerLocation.row][playerLocation.col];
+    console.log(currentRoom);
+    return currentRoom.key == key;
 }
 
 function getRandomInt(max) {
