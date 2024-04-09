@@ -8,6 +8,7 @@ var playerLocation = {
     col: 4
 }; // row, colume
 function generateGame() {
+  
     for( let floor = 0; floor < 10; floor++) {
         const floorArray = new Array();
         map.push(floorArray);
@@ -23,8 +24,21 @@ function generateGame() {
             }   
         }
     }
+    
+    for(let f=0; f<9; f++) {
+        var addedStairs = false;
+        while (!addedStairs) {
+            let r=  getRandomInt(10);
+            let c=  getRandomInt(10);
+            if (map[f][r][c].key === '.' &&
+                map[f+1][r][c].key === '.') {
+                map[f][r][c].key = 'SU';
+                map[f+1][r][c].key = 'SD';
+                addedStairs = true;
+                }
+        }
+    }
 
-    //Add Monsters
     generateMonsters();
     generateBoss();
     drawMap();  
@@ -90,7 +104,6 @@ function generateBoss(){
                 map[9][a][b].key = name;
             }
         }
-    
 }
 
 function drawMap() {
@@ -110,10 +123,12 @@ function drawMap() {
             }
             if (map.at(floor).at(row).at(col).explored) {
                 contents = map.at(floor).at(row).at(col).key;
+
                 if (map.at(floor).at(row).at(col).monsterStats){
                     ms = map.at(floor).at(row).at(col).monsterStats;
                     contents += '<br>A: ' + ms.attack + ' D: '+ ms.defence + ' S: ' + ms.agility;
                 }
+
             } else {
                 contents = '?';
             }
@@ -135,7 +150,7 @@ function submitCommand() {
     executeCommand(cmd);
 
 }
-
+    
 function executeCommand(cmd) {
     if ((cmd == 'S' || cmd == 's') && playerLocation.row < 9) { 
         playerLocation.row = playerLocation.row + 1;
@@ -148,14 +163,12 @@ function executeCommand(cmd) {
     }
     if ((cmd == 'E' || cmd == 'e') && playerLocation.col < 9) { 
         playerLocation.col = playerLocation.col + 1;
-    }
+    } 
     if ((cmd == 'U' || cmd == 'u') && playerLocation.floor < 9) { 
-        playerLocation.floor = playerLocation.floor + 1;
-        
+        playerLocation.floor = playerLocation.floor + 1; 
     }
     if ((cmd == 'D' || cmd == 'd') && playerLocation.floor > 0) { 
         playerLocation.floor = playerLocation.floor - 1;
-        
     }
     drawMap();
 }
@@ -165,19 +178,28 @@ function keyListener(event) {
     if (event.keyCode == 83) {
         executeCommand('s');
     } else if (event.keyCode == 87) {
+    } else if (event.keyCode == 87) {
         executeCommand('n');
+    } else if (event.keyCode == 68) {
     } else if (event.keyCode == 68) {
         executeCommand('e');
     } else if (event.keyCode == 65) {
+    } else if (event.keyCode == 65) {
         executeCommand('w');
-    } else if (event.keyCode == 38) {
+    }else if ((event.keyCode == 38) && keyAtPlayerLocation(playerLocation, 'SU')) {
         executeCommand('u');
-    } else if (event.keyCode == 40) {
+    }else if ((event.keyCode == 40) && keyAtPlayerLocation(playerLocation, 'SD')) {
         executeCommand('d');
     }
 }
 
+function keyAtPlayerLocation(playerLocation, key) {
+  //return boolean if the player is at a location with the given key
+    var currentRoom = map[playerLocation.floor][playerLocation.row][playerLocation.col];
+    console.log(currentRoom);
+    return currentRoom.key == key;
+}
+
 
 document.onkeydown = keyListener;
-
 
